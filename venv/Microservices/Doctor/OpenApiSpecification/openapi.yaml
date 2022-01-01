@@ -1,0 +1,233 @@
+openapi: 3.0.1
+info:
+  title: Cloud Gate Consulting Hospital Management System
+  description: This is the doctor's microservice.
+  contact:
+    email: karam.thebian@ieee.org
+  version: 1.0.0
+servers:
+  - url: https://localhost:6001/api/v1
+  - url: http://localhost:6001/api/v1
+tags:
+  - name: fullName
+    description: Doctor's Full name
+  - name: address
+    description: Doctor's Current Address
+  - name: phoneNumber
+    description: Doctor's Phone Number
+paths:
+  /doctor/:
+    get:
+      tags:
+        - doctor
+      summary: Get all doctors
+      description: returns all doctor
+      operationId: get_all_doctors
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Doctor"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Doctor"
+
+
+      x-openapi-router-controller: openapi_server.controllers.doctor_controller
+    post:
+      tags:
+        - doctor
+      summary: Add a new doctor to the database
+      description: adds a new doctor to the database
+      operationId: add_doctor
+      requestBody:
+        description: Doctor object that needs to be added to the database
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Doctor"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/Doctor"
+        required: true
+      responses:
+        200:
+          description: doctor Successfully Added
+          content: {}
+        405:
+          description: Invalid input
+          content: {}
+        500:
+          description: Internal Server Error
+          content: {}
+      x-openapi-router-controller: openapi_server.controllers.doctor_controller
+      x-codegen-request-body-name: body
+  /doctor/{id}:
+    put:
+      tags:
+        - doctor
+      summary: Update an existing doctor
+      description: updates an existing doctor in the database
+      operationId: edit_doctor
+      parameters:
+        - name: id
+          in: path
+          description: name values that need to be considered for filter
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Doctor object that needs to be added to the databse
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Doctor"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/Doctor"
+        required: true
+      responses:
+        400:
+          description: Invalid ID supplied
+          content: {}
+        401:
+          description: Unauthorized access, Token Invalid
+          content: {}
+        404:
+          description: doctor not found
+          content: {}
+        405:
+          description: Validation exception
+          content: {}
+      x-openapi-router-controller: openapi_server.controllers.doctor_controller
+      x-codegen-request-body-name: body
+    delete:
+      tags:
+        - doctor
+      summary: Deletes a doctor
+      operationId: delete_doctor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        400:
+          description: Invalid ID supplied
+          content: {}
+        404:
+          description: id not found
+          content: {}
+      x-openapi-router-controller: openapi_server.controllers.doctor_controller
+  /doctor/name/{name}:
+    get:
+      tags:
+        - doctor
+      summary: Finds doctor by Name
+      description: returns doctor by name
+      operationId: find_doctor_by_name
+      parameters:
+        - name: name
+          in: path
+          description: name values that need to be considered for filter
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Doctor"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Doctor"
+        400:
+          description: Invalid name value
+          content: {}
+        404:
+          description: Doctor not found.
+          content: {}
+      x-openapi-router-controller: openapi_server.controllers.doctor_controller
+
+  /doctor/patientName/{name}:
+    get:
+      tags:
+        - doctor
+      summary: Finds doctors by  Patients Name
+      description: returns doctors by Patients name
+      operationId: find_doctor_by_patient_name
+      parameters:
+        - name: name
+          in: path
+          description: name values that need to be considered for filter
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Doctor"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Doctor"
+        400:
+          description: Invalid name value
+          content: {}
+        401:
+          description: Unauthorized Access, Token Invalid.
+          content: {}
+        404:
+          description: Patient not found.
+          content: {}
+
+      x-openapi-router-controller: openapi_server.controllers.doctor_controller
+
+
+components:
+
+
+  schemas:
+    Doctor:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        speciality:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+        address:
+          type: string
+        phoneNumber:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+

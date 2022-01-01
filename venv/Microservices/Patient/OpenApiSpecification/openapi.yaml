@@ -1,0 +1,258 @@
+openapi: 3.0.1
+info:
+  title: Cloud Gate Consulting Hospital Management System
+  description: This is the patient's microservice.
+  contact:
+    email: karam.thebian@ieee.org
+  version: 1.0.0
+servers:
+  - url: https://localhost:6000/api/v1
+  - url: http://localhost:6000/api/v1
+tags:
+  - name: fullName
+    description: Patient's Full name
+  - name: address
+    description: Patient's Current Address
+  - name: phoneNumber
+    description: Patient's Phone Number
+paths:
+  /patient/:
+    get:
+      tags:
+        - patient
+      summary: Get all patients
+      description: returns all patient
+      operationId: get_all_patients
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Patient"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Patient"
+        400:
+          description: Invalid name value
+          content: {}
+
+      x-swagger-router-controller: "web.controllers.patient_controller"
+      x-openapi-router-controller: test_api.web.controllers.patient_controller
+    post:
+      tags:
+        - patient
+      summary: Add a new patient to the database
+      description: adds a new patient to the database
+      operationId: add_patient
+      requestBody:
+        description: Patient object that needs to be added to the database
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Patient"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/Patient"
+        required: true
+      responses:
+        200:
+          description: patient Successfully Added
+          content: {}
+
+        405:
+          description: Invalid input
+          content: {}
+        500:
+          description: Internal Server Error
+          content: {}
+      x-swagger-router-controller: "web.controllers.patient_controller"
+      x-openapi-router-controller: test_api.web.controllers.patient_controller
+      x-codegen-request-body-name: body
+  /patient/{id}:
+    put:
+      tags:
+        - patient
+      summary: Update an existing patient
+      description: updates an existing patient in the database
+      operationId: edit_patient
+      parameters:
+        - name: id
+          in: path
+          description: name values that need to be considered for filter
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Patient object that needs to be added to the databse
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Patient"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/Patient"
+        required: true
+      responses:
+        400:
+          description: Invalid ID supplied
+          content: {}
+        404:
+          description: patient not found
+          content: {}
+        405:
+          description: Validation exception
+          content: {}
+      x-swagger-router-controller: "web.controllers.patient_controller"
+      x-openapi-router-controller: test_api.web.controllers.patient_controller
+      x-codegen-request-body-name: body
+    delete:
+      tags:
+        - patient
+      summary: Deletes a patient
+      operationId: delete_patient
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        400:
+          description: Invalid ID supplied
+          content: {}
+        404:
+          description: id not found
+          content: {}
+      x-swagger-router-controller: "web.controllers.patient_controller"
+      x-openapi-router-controller: test_api.web.controllers.patient_controller
+  /patient/name/{name}:
+    get:
+      tags:
+        - patient
+      summary: Finds patient by Name
+      description: returns patient by name
+      operationId: find_patient_by_name
+      parameters:
+        - name: name
+          in: path
+          description: name values that need to be considered for filter
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Patient"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Patient"
+        400:
+          description: Invalid name value
+          content: {}
+        401:
+          description: Unauthorized access, Token Invalid
+          content: {}
+      x-swagger-router-controller: "web.controllers.patient_controller"
+      x-openapi-router-controller: test_api.web.controllers.patient_controller
+  /patient/doctorsname/{name}:
+    get:
+      tags:
+        - patient
+      summary: Finds patients by Doctors Name
+      description: returns patients by doctors name
+      operationId: find_patients_by_doctorsname
+      parameters:
+        - name: name
+          in: path
+          description: name values that need to be considered for filter
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Patient"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Patient"
+        400:
+          description: Invalid name value
+          content: {}
+        401:
+          description: Unauthorized access, Token Invalid
+          content: {}
+      x-swagger-router-controller: "web.controllers.patient_controller"
+      x-openapi-router-controller: test_api.web.controllers.patient_controller
+
+components:
+  securitySchemes:
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      x-bearerInfoFunc: test_api.web.controllers.patient_controller.decode_token
+      x-swagger-router-controller: "web.controllers.patient_controller"
+      x-openapi-router-controller: test_api.web.controllers.patient_controller
+
+  schemas:
+    Patient:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        bloodType:
+          type: string
+        medication:
+          type: array
+          items:
+            $ref: "#/components/schemas/Medicine"
+
+        username:
+          type: string
+        password:
+          type: string
+
+        address:
+          type: string
+        phoneNumber:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        private:
+          type: boolean
+    Medicine:
+      type: object
+      properties:
+        name:
+          type: string
+        methodOfUse:
+          type: string
+
+
+        
+    
