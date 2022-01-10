@@ -86,10 +86,10 @@ def edit_doctor(id, doctor):
     "dateOfBirth": str(doctor.date_of_birth)}})
 
 
-def find_doctor_by_name(name):
+def find_doctor_by_username(name):
   doctor_collection = mongo.db.Doctors
 
-  return list(doctor_collection.find({"name": name}, {'_id': False}))
+  return list(doctor_collection.find({"username": name}, {'_id': False}))
 
 """
 modify db or code to find doctor by patient name"""
@@ -97,7 +97,7 @@ modify db or code to find doctor by patient name"""
 def find_doctor_by_patient_name(name):
   doctor_collection = mongo.db.Doctors
 
-  return list(doctor_collection.find({"patientName": name}, {'_id': False}))
+  return list(doctor_collection.findOne({"patientName": name}, {'_id': False}))
 
 
 def get_all_doctors():

@@ -2,32 +2,14 @@
 from flask import Blueprint
 from pymongo import collection
 from .extensions import mongo
+from datetime import datetime
 
 main=Blueprint('main',__name__)
 
 
 @main.route('/')
 def index():
-  post1= {
-    "id":1,
-    "name": "karam Thebian",
-    "address": "beirut",
-    "phoneNumber": "81615542"
-  }
-  post2={
-    "id":2,
-    "name": "Abdel Motaleb",
-    "address": "hamra",
-    "phoneNumber": "81111111"
-  }
-  post3={
-    "id":3,
-    "name": "Client 3",
-    "address": "tripoli",
-    "phoneNumber": "81222222"
-  }
-  client_collection=mongo.db.Appointments
-  client_collection.insert_many([post1,post2,post3])
+
  
 
 
@@ -36,6 +18,78 @@ def index():
 
 def addAppointmentToDB(appointment):
   appointment_collection=mongo.db.Appointments
+  pipeline = [
+    {
+        '$match': {
+            '$and': [
+                {
+                    'date': {
+                        '$eq': appointment.date
+                    }
+                }, {
+                    '$or': [
+                        {
+                            'doctor': appointment.doctor
+                        }, {
+                            'patientName': appointment.patient_name
+                        }
+                    ]
+                }
+            ]
+        }
+    }, {
+        '$count': 'count'
+    }
+]
+
+  allappsquantity = appointment_collection.aggregate(pipeline)
+
+  allappsquantity = list(allappsquantity)
+
+  if allappsquantity:
+    print(allappsquantity)
+    print(type(allappsquantity))
+
+    allappsquantity = allappsquantity[0]
+    print(allappsquantity.get("count"))
+
+    if allappsquantity.get("count"):
+      return "Conflict Error: You Cannot add an appointment due to Conflict", 409
+
+  # allappsquantity=appointment_collection.find(
+  #   {
+  #     "$and":
+  #      [
+  #        {
+  #          "date": {
+  #            "$eq":appointment.date
+  #          }
+  #        },
+  #        {
+  #          "$or":
+  #            [
+  #              {
+  #                "doctor":
+  #                  appointment.doctor
+  #              },
+  #              {
+  #                "patientName":
+  #                  appointment.patient_name
+  #              }
+  #            ]
+  #        }
+  #      ]
+  #     },
+  #     {
+  #       "date": 1,
+  #       '_id': False
+  #     }
+  #   ).count()
+  #allapps=list(appointment_collection.find({"$and": [{"date": {"$eq": appointment.date}}, {"$or": [{"doctor": appointment.doctor}, {"patientName": appointment.patient_name}]}]}, {"date": 1, '_id': False}))
+  #print(allapps)
+  #if (allappsquantity>0):
+  #  return "Conflict Error: You Cannot add an appointment due to Conflict", 409
+
   count=appointment_collection.find().count()
   appointment.id=count+1
   pAppointment={
@@ -48,7 +102,7 @@ def addAppointmentToDB(appointment):
 }
   
   appointment_collection.insert_one(pAppointment)
-
+  return "Success: Patient Added Successfully" , 200
 def getAllAppointmentsFromDB():
   appointment_collection=mongo.db.Appointments
   

@@ -106,6 +106,8 @@ paths:
         405:
           description: Validation exception
           content: {}
+      security:
+        - jwt: [ "secret" ]
       x-openapi-router-controller: openapi_server.controllers.doctor_controller
       x-codegen-request-body-name: body
     delete:
@@ -127,14 +129,16 @@ paths:
         404:
           description: id not found
           content: {}
+      security:
+        - jwt: [ "secret" ]
       x-openapi-router-controller: openapi_server.controllers.doctor_controller
-  /doctor/name/{name}:
+  /doctor/username/{name}:
     get:
       tags:
         - doctor
       summary: Finds doctor by Name
       description: returns doctor by name
-      operationId: find_doctor_by_name
+      operationId: find_doctor_by_username
       parameters:
         - name: name
           in: path
@@ -206,7 +210,13 @@ paths:
 
 
 components:
-
+  securitySchemes:
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      x-bearerInfoFunc: openapi_server.controllers.doctor_controller.decode_token
+      x-openapi-router-controller: openapi_server.controllers.doctor_controller
 
   schemas:
     Doctor:

@@ -16,7 +16,7 @@ def main(config_object='openapi_server.settings'):
     app.app.config.from_object(config_object)
     mongo.init_app(app.app)
     app.app.register_blueprint(main1)
-    app.run()
+    app.run(port=5001)
 
 
 if __name__ == '__main__':

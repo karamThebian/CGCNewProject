@@ -1,0 +1,79 @@
+openapi: 3.0.1
+info:
+  contact:
+    email: karam.thebian@ieee.org
+  description: This is the Authentication microservice.
+  title: Cloud Gate Consulting Hospital Management System
+  version: 1.0.0
+servers:
+- url: https://localhost:6004/api/v1
+- url: http://localhost:6004/api/v1
+
+paths:
+  /doctor/:
+    post:
+      description: Authorizes a doctor from the databse
+      operationId: auth_doctor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+        description: Doctor Credentials
+        required: true
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: JWT token
+        "401":
+          description: Incorrect Credentials
+      summary: Authorize a doctor
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+      x-codegen-request-body-name: body
+  /patient/:
+    post:
+      description: Authorizes a patient from the databse
+      operationId: auth_patient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+        description: Patient Credentials
+        required: true
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: JWT token
+        "401":
+          description: Incorrect Credentials
+      summary: Authorize a patient
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+      x-codegen-request-body-name: body
+components:
+  schemas:
+    Credentials:
+      example:
+        password: password
+        username: username
+      properties:
+        username:
+          title: username
+          type: string
+        password:
+          title: password
+          type: string
+      title: Credentials
+      type: object

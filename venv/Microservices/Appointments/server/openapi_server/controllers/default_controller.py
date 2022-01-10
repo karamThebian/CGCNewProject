@@ -3,7 +3,20 @@ import six
 from .. import main
 from openapi_server.models.appointment import Appointment  # noqa: E501
 from openapi_server import util
+from jose import JWTError, jwt
+from werkzeug.exceptions import Unauthorized
+JWT_SECRET = 'thisismysecretkey'
 
+JWT_ALGORITHM = 'HS256'
+
+def decode_token(token):
+    token1= token.replace("sAlTeD","")
+    token1=token1.replace("sPiCeD","")
+    try:
+         return jwt.decode(token1, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    except JWTError as e:
+        # return "Unauthorized:" + e, 401
+        raise Unauthorized from e
 
 def add_appointment(body):  # noqa: E501
     """Add a new appointment to the database
@@ -17,12 +30,25 @@ def add_appointment(body):  # noqa: E501
     """
     if connexion.request.is_json:
         body = Appointment.from_dict(connexion.request.get_json())  # noqa: E501
-        try:
-            main.addAppointmentToDB(body)
-            response = {"Appointment added successfully"}, 200
-        except:
-            response= {"Could not add appointment"},400
-    return response
+        auth = connexion.request.headers.get("Authorization").split()[-1]
+        token1 = auth.replace("sAlTeD", "")
+        auth = token1.replace("sPiCeD", "")
+        auth = jwt.decode(auth, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        id = auth.get("id")
+        authority = auth.get("Authority")
+        username = auth.get("username")
+        if (authority != 'Doctor'):
+            return "Unauthorized: Appointments can only be added by Doctors ", 401
+        if (username == body.doctor):
+            #try:
+                return main.addAppointmentToDB(body)
+                # return "Appointment added successfully", 200
+            #except:
+                # return "Could not add appointment", 400
+
+        else:
+            return "Unauthorized: You cannot Add an appointment for Another Drs Profile", 401
+
 
 
 def delete_appointment(iddelete):  # noqa: E501

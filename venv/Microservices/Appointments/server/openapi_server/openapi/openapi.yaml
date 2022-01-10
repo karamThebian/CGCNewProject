@@ -65,6 +65,8 @@ paths:
         500:
           description: Internal Server Error
           content: {}
+      security:
+        - jwt: [ "secret" ]
       x-openapi-router-controller: openapi_server.controllers.default_controller
       x-codegen-request-body-name: body
   /appointment/{iddelete}:
@@ -200,6 +202,14 @@ paths:
       x-openapi-router-controller: openapi_server.controllers.default_controller
 
 components:
+
+  securitySchemes:
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      x-bearerInfoFunc: openapi_server.controllers.default_controller.decode_token
+      x-openapi-router-controller: openapi_server.controllers.default_controller
 
 
   schemas:

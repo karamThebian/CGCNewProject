@@ -28,7 +28,7 @@ def index():
     "address": "aliqua aliquip",
     "phoneNumber": "aute ex laborum velit anim",
     "dateOfBirth": "2013-12-17",
-    "private": True
+    "private": [{"username":"abdelMotaleb"},{"username":"kay"}]
 }
   post2={
     "id": 2,
@@ -77,68 +77,124 @@ def index():
 
 
 def add_patient(patient):
-  patient_collection = mongo.db.Patients
-  count = patient_collection.find().count()
-  patient.id = count + 1
-  medicationlst=""
+    patient_collection = mongo.db.Patients
+    count = patient_collection.find().count()
+    patient.id = count + 1
+    medicationlst=""
 
-  for item in patient.medication:
-      name=item.name
-      method= item.method_of_use
-      medicationlst+='{"name: "'+name+', "method: "'+method+ '}'
-  pPatient = {
-    "id": patient.id,
+
+    medications_formatted = []
+    for med in patient.medication:
+        new_med = {
+            "name": str(med.name),
+            "method_of_use": str(med.method_of_use)
+        }
+        medications_formatted.append(new_med)
+
+    pPatient = {
+        "id": patient.id,
+        "name": patient.name,
+        "bloodType": patient.blood_type,
+        "medication": medications_formatted,
+        "username": patient.username,
+        "password": patient.password,
+        "address": patient.address,
+        "phoneNumber": patient.phone_number,
+        "dateOfBirth": str(patient.date_of_birth),
+        "private": patient.private
+    }
+
+    try:
+
+        patient_collection.insert_one(pPatient)
+        return "Success: Patient Added Successfully", 201
+    except pymongo.errors.PyMongoError as e:
+        return "Error: Could Not Add Patient" , 400
+
+def add_patient_medication(medication,username):
+
+        patient_collection = mongo.db.Patients
+        print("medication",medication)
+
+        medicationlst=""
+
+
+        medications_formatted = []
+        for med in medication:
+            new_med = {
+                "name": str(med.name),
+                "method_of_use": str(med.method_of_use)
+            }
+            medications_formatted.append(new_med)
+
+
+
+        try:
+
+            patient_collection.update_one({"username": username},{ "$push": {"medication": {"$each": medications_formatted}}})
+            return "Success: Medication Added Successfully", 201
+        except pymongo.errors.PyMongoError as e:
+
+
+            return "Error: Could Not Add Medication" , 400
+
+
+def delete_patient(id):
+  patient_collection = mongo.db.Patients
+
+  x=patient_collection.delete_one({"id": id})
+  if(x.deleted_count==0):
+        return "Error: Could Not Delete Patient, check Id", 404
+  else:
+        return  "Success: Patient Deleted Successfully", 200
+
+
+
+
+def edit_patient(id, patient):
+  patient_collection = mongo.db.Patients
+  medicationlst = ""
+
+  medications_formatted = []
+  for med in patient.medication:
+      new_med = {
+          "name": str(med.name),
+          "method_of_use": str(med.method_of_use)
+      }
+      medications_formatted.append(new_med)
+  x = patient_collection.update_one({"id":id},{"$set":{
     "name": patient.name,
     "bloodType": patient.blood_type,
-    "medication": [{
-            "name": patient.medication[0].name,
-            "methodOfUse": patient.medication[0].method_of_use
-        },
-        {
-            "name": patient.medication[1].name,
-            "methodOfUse": patient.medication[1].method_of_use
-        }],
+    "medication": medications_formatted,
     "username": patient.username,
     "password": patient.password,
     "address": patient.address,
     "phoneNumber": patient.phone_number,
     "dateOfBirth": str(patient.date_of_birth),
     "private": patient.private
-}
-  patient_collection.insert_one(pPatient)
-
-
-
-
-def delete_patient(id):
-  patient_collection = mongo.db.Patients
-  patient_collection.delete_one({"id": id})
-
-
-def edit_patient(id, patient):
-  patient_collection = mongo.db.Patients
-  patient_collection.update_one({"id":id},{"$set":{
-    "name": patient.name,
-    "bloodType": patient.blood_type,
-    "medication": patient.medication,
-    "username": patient.username,
-    "password": patient.password,
-    "address": patient.address,
-    "phoneNumber": patient.phone_number,
-    "dateOfBirth": patient.date_of_birth,
-    "private": patient.private
 }})
+  if(x.modified_count==0):
+      return "Error: Could Not Edit Patient, check Id", 404
+  else:
+      return "Success: Patient Edited Successfully", 200
 
 
-def find_patient_by_name(name):
+
+def find_patient_by_username(name):
   patient_collection = mongo.db.Patients
+  x=patient_collection.find_one({"username": name}, {'_id': False})
+  if (x):
+      return list(patient_collection.find({"username": name}, {'_id': False}))
+  else:
+      raise Exception
+      #return list(x)
 
-  return list(patient_collection.find({"name": name}, {'_id': False}))
 
-"""
-modify db or code to find patient by Doctor name"""
+
 
 def find_patient_by_doctor_name(name):
+  #FUTURE FEATURE CAN BE ADDED
+  """modify db or code to find patient by Doctor name"""
   patient_collection = mongo.db.Patients
 
   return list(patient_collection.find({"Doctor": name}, {'_id': False}))

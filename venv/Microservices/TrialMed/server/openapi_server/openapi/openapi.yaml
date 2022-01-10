@@ -1,0 +1,337 @@
+openapi: 3.0.1
+info:
+  contact:
+    email: karam.thebian@ieee.org
+  description: This is the patient's microservice.
+  title: Cloud Gate Consulting Hospital Management System
+  version: 1.0.0
+servers:
+- url: https://localhost:5002/api/v1
+- url: http://localhost:5002/api/v1
+tags:
+- description: Patient's Full name
+  name: fullName
+- description: Patient's Current Address
+  name: address
+- description: Patient's Phone Number
+  name: phoneNumber
+paths:
+  /patient/:
+    get:
+      description: returns all patient
+      operationId: get_all_patients
+      responses:
+        "200":
+          content:
+            application/xml:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Patient'
+                type: array
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Patient'
+                type: array
+          description: successful operation
+        "400":
+          content: {}
+          description: Invalid name value
+      security:
+      - jwt:
+        - secret
+      summary: Get all patients
+      tags:
+      - patient
+      x-openapi-router-controller: openapi_server.controllers.patient_controller
+    post:
+      description: adds a new patient to the database
+      operationId: add_patient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patient'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Patient'
+        description: Patient object that needs to be added to the database
+        required: true
+      responses:
+        "200":
+          content: {}
+          description: patient Successfully Added
+        "405":
+          content: {}
+          description: Invalid input
+        "500":
+          content: {}
+          description: Internal Server Error
+      summary: Add a new patient to the database
+      tags:
+      - patient
+      x-openapi-router-controller: openapi_server.controllers.patient_controller
+      x-codegen-request-body-name: body
+  /patient/doctorsname/{name}:
+    get:
+      description: returns patients by doctors name
+      operationId: find_patients_by_doctorsname
+      parameters:
+      - description: name values that need to be considered for filter
+        explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/xml:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Patient'
+                type: array
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Patient'
+                type: array
+          description: successful operation
+        "400":
+          content: {}
+          description: Invalid name value
+        "401":
+          content: {}
+          description: Unauthorized access, Token Invalid
+      security:
+      - jwt:
+        - secret
+      summary: Finds patients by Doctors Name
+      tags:
+      - patient
+      x-openapi-router-controller: openapi_server.controllers.patient_controller
+  /patient/username/{name}:
+    get:
+      description: returns patient by username
+      operationId: find_patient_by_username
+      parameters:
+      - description: name values that need to be considered for filter
+        explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/xml:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Patient'
+                type: array
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Patient'
+                type: array
+          description: successful operation
+        "400":
+          content: {}
+          description: Invalid name value
+        "401":
+          content: {}
+          description: Unauthorized access, Token Invalid
+      security:
+      - jwt:
+        - secret
+      summary: Finds patient by Name
+      tags:
+      - patient
+      x-openapi-router-controller: openapi_server.controllers.patient_controller
+    post:
+      description: adds a new Medication to the Patient database
+      operationId: add_patient_medication
+      parameters:
+      - description: name values that need to be considered for filter
+        explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/Medicine'
+              type: array
+          application/xml:
+            schema:
+              items:
+                $ref: '#/components/schemas/Medicine'
+              type: array
+        description: Medication object that needs to be added to the database
+        required: true
+      responses:
+        "200":
+          content: {}
+          description: Medication Successfully Added
+        "405":
+          content: {}
+          description: Invalid input
+      security:
+      - jwt:
+        - secret
+      summary: Add a new medication to the patient database
+      tags:
+      - patient
+      x-openapi-router-controller: openapi_server.controllers.patient_controller
+      x-codegen-request-body-name: body
+  /patient/{idm}:
+    delete:
+      operationId: delete_patient
+      parameters:
+      - explode: false
+        in: path
+        name: idm
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "400":
+          content: {}
+          description: Invalid ID supplied
+        "404":
+          content: {}
+          description: id not found
+      security:
+      - jwt:
+        - secret
+      summary: Deletes a patient
+      tags:
+      - patient
+      x-openapi-router-controller: openapi_server.controllers.patient_controller
+    put:
+      description: updates an existing patient in the database
+      operationId: edit_patient
+      parameters:
+      - description: name values that need to be considered for filter
+        explode: false
+        in: path
+        name: idm
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patient'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Patient'
+        description: Patient object that needs to be added to the databse
+        required: true
+      responses:
+        "400":
+          content: {}
+          description: Invalid ID supplied
+        "404":
+          content: {}
+          description: patient not found
+        "405":
+          content: {}
+          description: Validation exception
+      security:
+      - jwt:
+        - secret
+      summary: Update an existing patient
+      tags:
+      - patient
+      x-openapi-router-controller: openapi_server.controllers.patient_controller
+      x-codegen-request-body-name: body
+components:
+  schemas:
+    Patient:
+      example:
+        password: password
+        private: true
+        address: address
+        phoneNumber: phoneNumber
+        name: name
+        medication:
+        - name: name
+          methodOfUse: methodOfUse
+        - name: name
+          methodOfUse: methodOfUse
+        dateOfBirth: 2000-01-23
+        id: 0
+        bloodType: bloodType
+        username: username
+      properties:
+        id:
+          format: int64
+          title: id
+          type: integer
+        name:
+          title: name
+          type: string
+        bloodType:
+          title: bloodType
+          type: string
+        medication:
+          items:
+            $ref: '#/components/schemas/Medicine'
+          title: medication
+          type: array
+        username:
+          title: username
+          type: string
+        password:
+          title: password
+          type: string
+        address:
+          title: address
+          type: string
+        phoneNumber:
+          title: phoneNumber
+          type: string
+        dateOfBirth:
+          format: date
+          title: dateOfBirth
+          type: string
+        private:
+          title: private
+          type: boolean
+      title: Patient
+      type: object
+    Medicine:
+      example:
+        name: name
+        methodOfUse: methodOfUse
+      properties:
+        name:
+          title: name
+          type: string
+        methodOfUse:
+          title: methodOfUse
+          type: string
+      title: Medicine
+      type: object
+  securitySchemes:
+    jwt:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
+      x-bearerInfoFunc: openapi_server.controllers.patient_controller.decode_token
+      x-openapi-router-controller: openapi_server.controllers.patient_controller

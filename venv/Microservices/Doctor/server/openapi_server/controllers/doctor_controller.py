@@ -3,7 +3,20 @@ import six
 from .. import main
 from openapi_server.models.doctor import Doctor  # noqa: E501
 from openapi_server import util
+from jose import JWTError, jwt
+from werkzeug.exceptions import Unauthorized
+JWT_SECRET = 'thisismysecretkey'
 
+JWT_ALGORITHM = 'HS256'
+
+def decode_token(token):
+    token1= token.replace("sAlTeD","")
+    token1=token1.replace("sPiCeD","")
+    try:
+         return jwt.decode(token1, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    except JWTError as e:
+        # return "Unauthorized:" + e, 401
+        raise Unauthorized from e
 
 def add_doctor(body):  # noqa: E501
     """Add a new doctor to the database
@@ -37,8 +50,21 @@ def delete_doctor(idm):  # noqa: E501
     """
 
     try:
-        main.delete_doctor(idm)
-        response = "Doctor Deleted Successfully", 200
+        auth = connexion.request.headers.get("Authorization").split()[-1]
+        token1 = auth.replace("sAlTeD", "")
+        auth = token1.replace("sPiCeD", "")
+        auth = jwt.decode(auth, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        id = auth.get("id")
+        authority=auth.get("Authority")
+        username=auth.get("username")
+        if(authority!='Doctor'):
+            return "Unauthorized: Delete of a Dr Account By a Non Doctor Personal Attempted",401
+        if (id == idm):
+            main.delete_doctor(idm)
+            response = "Doctor Deleted Successfully", 200
+        else:
+            return "Unauthorized: You cannot Delete Another Drs Profile", 401
+
     except KeyError:
         response = {}, 404
     return response
@@ -58,15 +84,24 @@ def edit_doctor(idm, body):  # noqa: E501
     """
     if connexion.request.is_json:
         body = Doctor.from_dict(connexion.request.get_json())  # noqa: E501
+        auth=connexion.request.headers.get("Authorization").split()[-1]
+        token1 = auth.replace("sAlTeD", "")
+        auth = token1.replace("sPiCeD", "")
+        auth= jwt.decode(auth, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        id=auth.get("id")
+        print("auth",auth)
         try:
-            main.edit_doctor(idm, body)
-            response = "Doctor edited Successfully", 200
+            if(id==idm):
+                main.edit_doctor(idm, body)
+                response = "Doctor edited Successfully", 200
+            else:
+                return "Unauthorized: You cannot Edit Another Drs Profile", 401
         except KeyError:
             response = "Doctor ID not found", 400
     return response
 
 
-def find_doctor_by_name(name):  # noqa: E501
+def find_doctor_by_username(name):  # noqa: E501
     """Finds doctor by Name
 
     returns doctor by name # noqa: E501
@@ -77,7 +112,7 @@ def find_doctor_by_name(name):  # noqa: E501
     :rtype: List[Doctor]
     """
     try:
-        response=main.find_doctor_by_name(name),200
+        response=main.find_doctor_by_username(name),200
     except:
         response= "Doctor not found",400
 
