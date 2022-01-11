@@ -13,6 +13,7 @@ openapi_server/controllers/security_controller_.py
 openapi_server/encoder.py
 openapi_server/models/__init__.py
 openapi_server/models/base_model_.py
+openapi_server/models/doctorauth.py
 openapi_server/models/medicine.py
 openapi_server/models/patient.py
 openapi_server/openapi/openapi.yaml

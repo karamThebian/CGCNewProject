@@ -190,6 +190,40 @@ paths:
         - jwt: [ "secret" ]
       x-openapi-router-controller: openapi_server.controllers.patient_controller
       x-codegen-request-body-name: body
+    put:
+      description: adds a new Doctor to the Patient database
+      operationId: add_doctor_access
+      parameters:
+      - description: name values that need to be considered for filter
+        explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+             $ref: '#/components/schemas/Doctorauth'
+        
+        required: true
+      responses:
+        "200":
+          content: { }
+          description: Doctor Authorized
+        "405":
+          content: { }
+          description: Invalid input
+
+      summary: Authorize a new doctor to the patient database
+      tags:
+        - patient
+      security:
+        - jwt: [ "secret" ]
+      x-openapi-router-controller: openapi_server.controllers.patient_controller
+      x-codegen-request-body-name: body
   /patient/{idm}:
     delete:
       operationId: delete_patient
@@ -264,6 +298,7 @@ components:
       x-bearerInfoFunc: openapi_server.controllers.patient_controller.decode_token
       x-openapi-router-controller: openapi_server.controllers.patient_controller
   schemas:
+    
     Patient:
       example:
         password: password
@@ -330,3 +365,11 @@ components:
           type: string
       title: Medicine
       type: object
+    
+    Doctorauth:
+        example:
+          doctorname: kay
+        properties:
+          doctorname: 
+            title: doctorname
+            type: string

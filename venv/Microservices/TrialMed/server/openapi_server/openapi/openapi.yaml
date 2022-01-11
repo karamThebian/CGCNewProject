@@ -37,9 +37,7 @@ paths:
         "400":
           content: {}
           description: Invalid name value
-      security:
-      - jwt:
-        - secret
+
       summary: Get all patients
       tags:
       - patient
@@ -105,9 +103,7 @@ paths:
         "401":
           content: {}
           description: Unauthorized access, Token Invalid
-      security:
-      - jwt:
-        - secret
+
       summary: Finds patients by Doctors Name
       tags:
       - patient
@@ -145,9 +141,8 @@ paths:
         "401":
           content: {}
           description: Unauthorized access, Token Invalid
-      security:
-      - jwt:
-        - secret
+
+
       summary: Finds patient by Name
       tags:
       - patient
@@ -185,10 +180,39 @@ paths:
         "405":
           content: {}
           description: Invalid input
-      security:
-      - jwt:
-        - secret
+
       summary: Add a new medication to the patient database
+      tags:
+      - patient
+      x-openapi-router-controller: openapi_server.controllers.patient_controller
+      x-codegen-request-body-name: body
+    put:
+      description: adds a new Doctor to the Patient database
+      operationId: add_doctor_access
+      parameters:
+      - description: name values that need to be considered for filter
+        explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Doctorauth'
+        required: true
+      responses:
+        "200":
+          content: {}
+          description: Doctor Authorized
+        "405":
+          content: {}
+          description: Invalid input
+
+      summary: Authorize a new doctor to the patient database
       tags:
       - patient
       x-openapi-router-controller: openapi_server.controllers.patient_controller
@@ -212,9 +236,7 @@ paths:
         "404":
           content: {}
           description: id not found
-      security:
-      - jwt:
-        - secret
+
       summary: Deletes a patient
       tags:
       - patient
@@ -252,9 +274,7 @@ paths:
         "405":
           content: {}
           description: Validation exception
-      security:
-      - jwt:
-        - secret
+
       summary: Update an existing patient
       tags:
       - patient
@@ -328,10 +348,12 @@ components:
           type: string
       title: Medicine
       type: object
-  securitySchemes:
-    jwt:
-      bearerFormat: JWT
-      scheme: bearer
-      type: http
-      x-bearerInfoFunc: openapi_server.controllers.patient_controller.decode_token
-      x-openapi-router-controller: openapi_server.controllers.patient_controller
+    Doctorauth:
+      example:
+        doctorname: kay
+      properties:
+        doctorname:
+          title: doctorname
+          type: string
+      title: Doctorauth
+

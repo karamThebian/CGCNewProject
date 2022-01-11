@@ -139,6 +139,25 @@ def add_patient_medication(medication,username):
             return "Error: Could Not Add Medication" , 400
 
 
+def add_doctor_access(doctor,username):
+
+        patient_collection = mongo.db.Patients
+        print("doctor",doctor)
+
+
+
+
+
+        try:
+
+            patient_collection.update_one({"username": username},{ "$push": {"private": doctor.doctorname}})
+            return "Success: Doctor Access Added Successfully", 201
+        except pymongo.errors.PyMongoError as e:
+
+
+            return "Error: Could Not Add Medication" , 400
+
+
 def delete_patient(id):
   patient_collection = mongo.db.Patients
 

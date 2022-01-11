@@ -12,7 +12,7 @@ def main():
                 arguments={'title': 'Cloud Gate Consulting Hospital Management System'},
                 pythonic_params=True)
 
-    app.run(port=8080)
+    app.run(port=8082)
 
 
 if __name__ == '__main__':

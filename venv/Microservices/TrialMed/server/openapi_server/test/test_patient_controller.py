@@ -6,6 +6,7 @@ import unittest
 from flask import json
 from six import BytesIO
 
+from openapi_server.models.doctorauth import Doctorauth  # noqa: E501
 from openapi_server.models.medicine import Medicine  # noqa: E501
 from openapi_server.models.patient import Patient  # noqa: E501
 from openapi_server.test import BaseTestCase
@@ -13,6 +14,27 @@ from openapi_server.test import BaseTestCase
 
 class TestPatientController(BaseTestCase):
     """PatientController integration test stubs"""
+
+    def test_add_doctor_access(self):
+        """Test case for add_doctor_access
+
+        Authorize a new doctor to the patient database
+        """
+        body = {
+  "doctorname" : "kay"
+}
+        headers = { 
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer special-key',
+        }
+        response = self.client.open(
+            '/api/v1/patient/username/{name}'.format(name='name_example'),
+            method='PUT',
+            headers=headers,
+            data=json.dumps(body),
+            content_type='application/json')
+        self.assert200(response,
+                       'Response body is : ' + response.data.decode('utf-8'))
 
     @unittest.skip("Connexion does not support multiple consumes. See https://github.com/zalando/connexion/pull/760")
     def test_add_patient(self):

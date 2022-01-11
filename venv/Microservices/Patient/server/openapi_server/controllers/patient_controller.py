@@ -1,6 +1,7 @@
 import connexion
 import six
 from .. import main
+from openapi_server.models.doctorauth import Doctorauth  # noqa: E501
 from openapi_server.models.patient import Patient  # noqa: E501
 from openapi_server.models.medicine import Medicine  # noqa: E501
 from openapi_server import util
@@ -20,6 +21,55 @@ def decode_token(token):
         raise Unauthorized from e
 
 
+def add_doctor_access(name, body):  # noqa: E501
+    """Authorize a new doctor to the patient database
+
+    adds a new Doctor to the Patient database # noqa: E501
+
+    :param name: name values that need to be considered for filter
+    :type name: str
+    :param body:
+    :type body: dict | bytes
+
+    :rtype: None
+    """
+    if connexion.request.is_json:
+        body = Doctorauth.from_dict(connexion.request.get_json())  # noqa: E501
+
+    try:
+        auth = connexion.request.headers.get("Authorization").split()[-1]
+
+    except:
+        return "Error: Bad Token" , 400
+    token1 = auth.replace("sAlTeD", "")
+    auth = token1.replace("sPiCeD", "")
+
+    auth = jwt.decode(auth, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    id = auth.get("id",-1)
+    authority = auth.get("Authority",-1)
+    usernameFromToken = auth.get("username",-1)
+
+    if(usernameFromToken!=name and authority=="Patient"):
+        return "Unauthorized: You Cannot Modify Another Patients Privacy settings "
+    if (authority != "Patient"):
+        return "Unauthorized: You Cannot Modify Another Patients Privacy Settings "
+    try:
+        if (id == -1 or authority == -1 or usernameFromToken == -1):
+            raise Exception
+
+        if (usernameFromToken == name and authority == "Patient"):
+            try:
+                return main.add_doctor_access(body,name),200
+            except Exception as e:
+                print(e)
+                return "Error: Could Not Find Patient, check Patient Username ",404
+    except:
+        return "Error: Bad Token" , 400
+
+
+
+
+
 def add_patient(body):  # noqa: E501
     """Add a new patient to the database
 
@@ -33,6 +83,10 @@ def add_patient(body):  # noqa: E501
     if connexion.request.is_json:
         body = Patient.from_dict(connexion.request.get_json())  # noqa: E501
         return main.add_patient(body)
+
+
+
+
 
 
 
@@ -134,7 +188,7 @@ def find_patient_by_username(name):  # noqa: E501
         except:
             return "",404
     if(usernameFromToken!=name and authority=="Patient"):
-        return "Unauthorized: You Cannot View Another Patients Account "
+        return "Unauthorized: You Cannot View Another Patients Account ",401
     try:
         if (id == -1 or authority == -1 or usernameFromToken == -1):
             raise Exception
@@ -225,7 +279,7 @@ def find_patients_by_doctorsname(name):  # noqa: E501
     try:
         response = main.find_patient_by_doctor_name(name), 200
     except:
-        response = "Patient not found", 400
+        response = "Error: Patient not found", 400
 
     return response
 
@@ -257,5 +311,5 @@ def get_all_patients():  # noqa: E501
         except:
             return "Empty: No Patients Available",404
     else:
-        return "Unauthorized: You are Not Authorized to access all Patients!"
+        return "Unauthorized: You are Not Authorized to access all Patients!",401
 

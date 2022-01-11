@@ -1,9 +1,27 @@
 import connexion
 import six
 
+from openapi_server.models.doctorauth import Doctorauth  # noqa: E501
 from openapi_server.models.medicine import Medicine  # noqa: E501
 from openapi_server.models.patient import Patient  # noqa: E501
 from openapi_server import util
+
+
+def add_doctor_access(name, body):  # noqa: E501
+    """Authorize a new doctor to the patient database
+
+    adds a new Doctor to the Patient database # noqa: E501
+
+    :param name: name values that need to be considered for filter
+    :type name: str
+    :param body: 
+    :type body: dict | bytes
+
+    :rtype: None
+    """
+    if connexion.request.is_json:
+        body = Doctorauth.from_dict(connexion.request.get_json())  # noqa: E501
+    return 'do some magic!'
 
 
 def add_patient(body):  # noqa: E501

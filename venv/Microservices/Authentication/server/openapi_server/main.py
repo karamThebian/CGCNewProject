@@ -92,7 +92,7 @@ def auth_doctor(body):
 
 
 def auth_patient(body):
-    URL = "http://192.168.8.111:5002/api/v1/patient/username/" + body.username
+    URL = "http://192.168.8.125:5002/api/v1/patient/username/" + body.username
     timestamp = _current_timestamp()
     payload = {
         "iat": int(timestamp),

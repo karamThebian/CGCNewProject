@@ -33,10 +33,16 @@ paths:
                 items:
                   $ref: '#/components/schemas/Patient'
                 type: array
-          description: successful operation
+          description: "Success!"
         "400":
           content: {}
-          description: Invalid name value
+          description: "Error: Bad Token"
+        "404":
+          content: { }
+          description: "Empty: No Patients Available"
+        "401":
+          content: { }
+          description: "Unauthorized: You are Not Authorized to access all Patients!"
       summary: Get all patients
       tags:
       - patient
@@ -57,15 +63,13 @@ paths:
         description: Patient object that needs to be added to the database
         required: true
       responses:
-        "200":
+        "201":
           content: {}
-          description: patient Successfully Added
-        "405":
+          description: "Success: Patient Added Successfully"
+        "400":
           content: {}
-          description: Invalid input
-        "500":
-          content: {}
-          description: Internal Server Error
+          description: "Error: Could Not Add Patient"
+
       summary: Add a new patient to the database
       tags:
       - patient
@@ -97,10 +101,10 @@ paths:
                 items:
                   $ref: '#/components/schemas/Patient'
                 type: array
-          description: successful operation
+          description: "Success!"
         "400":
           content: {}
-          description: Invalid name value
+          description: "Error: Patient not found"
         "401":
           content: {}
           description: Unauthorized access, Token Invalid
@@ -136,19 +140,61 @@ paths:
                 items:
                   $ref: '#/components/schemas/Patient'
                 type: array
-          description: successful operation
+          description: "Success!"
         "400":
           content: {}
-          description: Invalid name value
+          description: "Error: Bad Token"
         "401":
           content: {}
-          description: Unauthorized access, Token Invalid
+          description: "Unauthorized: You Cannot View Another Patients Account "
+        "404":
+          content: { }
+          description: "Error: Could Not Find Patient, check Patient Username"
       summary: Finds patient by Name
       tags:
       - patient
       security:
         - jwt: [ "secret" ]
       x-openapi-router-controller: openapi_server.controllers.patient_controller
+    put:
+      description: adds a new Doctor to the Patient database
+      operationId: add_doctor_access
+      parameters:
+        - description: name values that need to be considered for filter
+          explode: false
+          in: path
+          name: name
+          required: true
+          schema:
+            type: string
+          style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Doctorauth'
+        required: true
+      responses:
+        "201":
+          content: { }
+          description: "Success: Doctor Access Added Successfully"
+        "400":
+          content: { }
+          description: "Error: Bad Token"
+        "401":
+          content: { }
+          description: "Unauthorized: You Cannot Modify Another Patients Privacy Settings "
+        "404":
+          content: { }
+          description: "Error: Could Not Find Patient, check Patient Username"
+
+      summary: Authorize a new doctor to the patient database
+      tags:
+        - patient
+      security:
+        - jwt: [ "secret" ]
+      x-openapi-router-controller: openapi_server.controllers.patient_controller
+      x-codegen-request-body-name: body
     post:
       description: adds a new Medication to the Patient database
       operationId: add_patient_medication
@@ -178,10 +224,16 @@ paths:
       responses:
         "200":
           content: { }
-          description: Medication Successfully Added
-        "405":
+          description: "Success: Medication Added Successfully"
+        "400":
           content: { }
-          description: Invalid input
+          description: "Error: Bad Token"
+        "401":
+          content: { }
+          description: "Unauthorized: You Cannot Modify Patients Account "
+        "404":
+          content: { }
+          description: "Error: Could Not Find Patient, check Patient Username"
 
       summary: Add a new medication to the patient database
       tags:
@@ -239,15 +291,18 @@ paths:
         description: Patient object that needs to be added to the databse
         required: true
       responses:
+        "200":
+          content: { }
+          description: "Success: Patient Deleted Successfully"
         "400":
-          content: {}
-          description: Invalid ID supplied
+          content: { }
+          description: "Error: Bad Token"
+        "401":
+          content: { }
+          description: "Unauthorized: You Cannot Modify Patients Account "
         "404":
-          content: {}
-          description: patient not found
-        "405":
-          content: {}
-          description: Validation exception
+          content: { }
+          description: "Error: Could Not Find Patient, check Patient Username"
       summary: Update an existing patient
       tags:
       - patient
@@ -330,3 +385,11 @@ components:
           type: string
       title: Medicine
       type: object
+
+    Doctorauth:
+        example:
+          doctorname: kay
+        properties:
+          doctorname:
+            title: doctorname
+            type: string
